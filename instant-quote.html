@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Instant Car Recovery Quote | REV Towing & Recovery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #111;
+      color: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: #181818;
+      border-radius: 14px;
+      padding: 20px 20px 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid #2a2a2a;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+
+    .logo-title {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .logo-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .logo-title p {
+      font-size: 13px;
+      color: #c2c2c2;
+    }
+
+    .badge {
+      background: #e63946;
+      color: white;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid #2a2a2a;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    label {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+      color: #dddddd;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #101010;
+      color: #f5f5f5;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: #e63946;
+    }
+
+    .help-text {
+      font-size: 11px;
+      color: #a0a0a0;
+      margin-top: 3px;
+    }
+
+    .radio-row {
+      font-size: 13px;
+      color: #dddddd;
+      margin-bottom: 8px;
+    }
+
+    .radio-row span {
+      display: inline-block;
+      min-width: 150px;
+    }
+
+    .radio-row label {
+      display: inline-block;
+      margin-right: 14px;
+      font-size: 13px;
+    }
+
+    .radio-row input {
+      margin-right: 4px;
+    }
+
+    .button-main {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #ff4b5c, #e63946);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, opacity 0.1s;
+      box-shadow: 0 6px 20px rgba(230,57,70,0.4);
+    }
+
+    .button-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(230,57,70,0.6);
+    }
+
+    .button-main:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      opacity: 0.9;
+    }
+
+    .result-box {
+      margin-top: 18px;
+      padding: 14px 14px 16px;
+      border-radius: 12px;
+      background: #101010;
+      border: 1px solid #333;
+      display: none;
+    }
+
+    .result-main {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .result-main span.label {
+      font-size: 13px;
+      color: #bbbbbb;
+    }
+
+    .result-main span.price {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .result-breakdown {
+      font-size: 12px;
+      color: #b5b5b5;
+      margin-bottom: 6px;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: #888888;
+      line-height: 1.4;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-secondary,
+    .btn-whatsapp {
+      flex: 1;
+      min-width: 150px;
+      text-align: center;
+      text-decoration: none;
+      font-size: 13px;
+      padding: 9px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid #333;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #222;
+      color: #f5f5f5;
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #ffffff;
+      border-color: #25D366;
+    }
+
+    .whats-bubble {
+      font-size: 11px;
+      color: #a5a5a5;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 480px) {
+      .logo-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .result-main {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .badge {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo-row">
+      <div class="logo-title">
+        <h1>Instant Car Recovery Quote</h1>
+        <p>REV Towing &amp; Recovery – East &amp; North London · 24/7 service</p>
+      </div>
+      <div class="badge">Live price estimate</div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="section">
+      <div class="section-title">Step 1 · Vehicle details</div>
+
+      <label for="regInput">Vehicle reg</label>
+      <input id="regInput" type="text" placeholder="e.g. AB12CDE">
+      <div class="help-text">
+        This helps us match your quote with your call or WhatsApp message.
+      </div>
+
+      <label for="weightSelect" style="margin-top:10px;">Vehicle type</label>
+      <select id="weightSelect" style="width:100%; padding:9px 10px; border-radius:8px; border:1px solid #333; background:#101010; color:#f5f5f5; font-size:14px;">
+        <option value="1500">Small car / standard car (up to 2,000 kg)</option>
+        <option value="2300">4x4 / estate / medium van (2,001–3,000 kg)</option>
+        <option value="3200">Large van / light truck (over 3,000 kg)</option>
+      </select>
+      <div class="help-text">
+        If you’re not sure, just choose the closest option – we’ll confirm on the phone.
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="section">
+      <div class="section-title">Step 2 · Journey distance</div>
+      <label for="distanceMiles">Approximate distance (miles)</label>
+      <input id="distanceMiles" type="number" min="1" step="1" placeholder="e.g. 15">
+      <div class="help-text">
+        From pickup location to drop-off. If unsure, you can estimate – we’ll confirm on booking.
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="section">
+      <div class="section-title">Step 3 · Vehicle condition</div>
+
+      <div class="radio-row">
+        <span>Rolls in neutral?</span>
+        <label><input type="radio" name="rollsNeutral" id="rollsNeutralYes" checked> Yes</label>
+        <label><input type="radio" name="rollsNeutral" id="rollsNeutralNo"> No</label>
+      </div>
+
+      <div class="radio-row">
+        <span>Accident / heavy damage?</span>
+        <label><input type="radio" name="accident" id="accidentNo" checked> No</label>
+        <label><input type="radio" name="accident" id="accidentYes"> Yes</label>
+      </div>
+
+      <div class="radio-row">
+        <span>Urgent / blocking the road?</span>
+        <label><input type="radio" name="urgent" id="urgentNo" checked> No</label>
+        <label><input type="radio" name="urgent" id="urgentYes"> Yes</label>
+      </div>
+
+      <div class="radio-row">
+        <span>Time</span>
+        <label><input type="radio" name="timeOfDay" id="timeNormal" checked> Normal hours</label>
+        <label><input type="radio" name="timeOfDay" id="timeNight"> Night (21:00–06:00)</label>
+      </div>
+
+      <div class="radio-row">
+        <span>Day</span>
+        <label><input type="radio" name="dayType" id="dayWeekday" checked> Weekday</label>
+        <label><input type="radio" name="dayType" id="dayWeekend"> Weekend</label>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <button class="button-main" onclick="onCalculateClick()">Calculate my quote</button>
+
+    <!-- RESULT -->
+    <div id="resultBox" class="result-box">
+      <div class="result-main">
+        <span class="label">Estimated price</span>
+        <span class="price" id="quoteTotal">£0</span>
+      </div>
+      <div id="quoteBreakdown" class="result-breakdown"></div>
+      <div class="small-note">
+        This is an instant online estimate based on the details you entered.  
+        The final price may vary slightly depending on the exact situation on scene
+        (access, location, traffic, extra waiting time, etc.).
+      </div>
+
+      <div class="cta-row">
+        <a id="callLink" class="btn-secondary" href="tel:07990090028">
+          Call now · 079 900 900 28
+        </a>
+        <a id="whatsLink" class="btn-whatsapp" target="_blank" rel="noopener">
+          WhatsApp us this quote
+        </a>
+      </div>
+      <div class="whats-bubble">
+        When you tap WhatsApp, your quote and vehicle details will be pre-filled in the message.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function getCategory(weightKg) {
+      if (weightKg <= 2000) return 1;      // Car / small van
+      if (weightKg <= 3000) return 2;      // Medium van / 4x4
+      return 3;                            // Large van
+    }
+
+    function calculateQuote(weightKg, distanceMiles, options) {
+      const category = getCategory(weightKg);
+
+      let baseFee, ratePerMile;
+      if (category === 1) { baseFee = 65; ratePerMile = 2.0; }
+      else if (category === 2) { baseFee = 80; ratePerMile = 2.5; }
+      else { baseFee = 100; ratePerMile = 3.0; }
+
+      const includedMiles = 5;
+      const extraMiles = Math.max(0, distanceMiles - includedMiles);
+      let distancePrice = extraMiles * ratePerMile;
+
+      let surcharge = 0;
+      if (!options.rollsInNeutral) surcharge += 20;
+      if (options.isAccident) surcharge += 30;
+      if (options.isUrgent) surcharge += 25;
+
+      let multiplier = 1;
+      if (options.isNight) multiplier *= 1.3;
+      if (options.isWeekend) multiplier *= 1.1;
+
+      let total = (baseFee + distancePrice + surcharge) * multiplier;
+      total = Math.round(total);
+
+      return {
+        total,
+        baseFee,
+        distancePrice,
+        surcharge,
+        multiplier,
+        extraMiles,
+        ratePerMile
+      };
+    }
+
+    function onCalculateClick() {
+      const distanceInput = document.getElementById('distanceMiles').value;
+      const distanceMiles = parseFloat(distanceInput);
+
+      if (!distanceMiles || distanceMiles <= 0) {
+        alert('Please enter the approximate distance in miles.');
+        return;
+      }
+
+      const weightSelect = document.getElementById('weightSelect');
+      const weightKg = parseFloat(weightSelect.value);
+
+      const options = {
+        rollsInNeutral: document.getElementById('rollsNeutralYes').checked,
+        isAccident: document.getElementById('accidentYes').checked,
+        isUrgent: document.getElementById('urgentYes').checked,
+        isNight: document.getElementById('timeNight').checked,
+        isWeekend: document.getElementById('dayWeekend').checked,
+      };
+
+      const result = calculateQuote(weightKg, distanceMiles, options);
+
+      document.getElementById('quoteTotal').innerText = '£' + result.total;
+
+      const breakdownText =
+        `Base: £${result.baseFee} · Distance: £${result.distancePrice.toFixed(2)} ` +
+        `(extra ${result.extraMiles} miles @ £${result.ratePerMile.toFixed(2)}/mile) · ` +
+        `Extras: £${result.surcharge}`;
+
+      document.getElementById('quoteBreakdown').innerText = breakdownText;
+      document.getElementById('resultBox').style.display = 'block';
+
+      // Prepare WhatsApp link
+      const reg = (document.getElementById('regInput').value || '').trim();
+      const vehicleTypeText = weightSelect.options[weightSelect.selectedIndex].text;
+
+      let conditions = [];
+      conditions.push(options.rollsInNeutral ? 'Rolls in neutral: YES' : 'Rolls in neutral: NO');
+      conditions.push(options.isAccident ? 'Accident / heavy damage: YES' : 'Accident / heavy damage: NO');
+      conditions.push(options.isUrgent ? 'Urgent / blocking road: YES' : 'Urgent / blocking road: NO');
+      conditions.push(options.isNight ? 'Night job' : 'Daytime');
+      conditions.push(options.isWeekend ? 'Weekend' : 'Weekday');
+
+      const messageLines = [
+        'Hi, I have an online quote from your website:',
+        '',
+        reg ? ('Vehicle reg: ' + reg) : 'Vehicle reg: (not entered)',
+        'Vehicle type: ' + vehicleTypeText,
+        'Distance: ' + distanceMiles + ' miles',
+        '',
+        'Conditions:',
+        '- ' + conditions.join('\\n- '),
+        '',
+        'Estimated price: £' + result.total,
+        '',
+        'Can you confirm availability and final price, please?'
+      ];
+
+      const message = messageLines.join('\\n');
+      const encoded = encodeURIComponent(message);
+
+      // phone: 079 900 900 28 -> 447990090028
+      const whatsappUrl = 'https://wa.me/447990090028?text=' + encoded;
+      document.getElementById('whatsLink').href = whatsappUrl;
+    }
+  </script>
+</body>
+</html>
