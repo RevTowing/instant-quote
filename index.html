@@ -293,7 +293,7 @@
       <label for="distanceMiles">Approximate distance (miles)</label>
       <input id="distanceMiles" type="number" min="1" step="1" placeholder="e.g. 15">
       <div class="help-text">
-        From pickup location to drop-off. If unsure, you can estimate – we’ll confirm on booking.
+        From pickup location to drop-off.
       </div>
     </div>
 
@@ -323,18 +323,6 @@
         <span>Motorway?</span>
         <label><input type="radio" name="motorway" id="motorwayNo" checked> No</label>
         <label><input type="radio" name="motorway" id="motorwayYes"> Yes</label>
-      </div>
-
-      <div class="radio-row">
-        <span>Time</span>
-        <label><input type="radio" name="timeOfDay" id="timeNormal" checked> Normal hours</label>
-        <label><input type="radio" name="timeOfDay" id="timeNight"> Night (21:00–06:00)</label>
-      </div>
-
-      <div class="radio-row">
-        <span>Day</span>
-        <label><input type="radio" name="dayType" id="dayWeekday" checked> Weekday</label>
-        <label><input type="radio" name="dayType" id="dayWeekend"> Weekend</label>
       </div>
     </div>
 
@@ -385,7 +373,7 @@
 
       // base fee by category
       let baseFee;
-      const ratePerMile = 3.0;   // £3 per mile daytime for all categories
+      const ratePerMile = 3.0;   // £3 per mile from the first mile
 
       if (category === 1) {
         // Small cars up to 1500 kg
@@ -398,22 +386,20 @@
         baseFee = 100;
       }
 
-      // miles included in base price
-      const includedMiles = 5;
-      const extraMiles = Math.max(0, distanceMiles - includedMiles);
-      let distancePrice = extraMiles * ratePerMile;
+      // distance price: all miles are charged
+      const distancePrice = distanceMiles * ratePerMile;
+      const extraMiles = distanceMiles; // for display only
 
       let surcharge = 0;
 
-      // NEW surcharges
+      // surcharges
       if (!options.rollsInNeutral) surcharge += 60;   // not rolling in neutral
       if (options.isAccident)      surcharge += 70;   // accident / heavy damage
       if (options.isUrgent)        surcharge += 25;   // urgent / blocking road
       if (options.isMotorway)      surcharge += 80;   // motorway job
 
-      let multiplier = 1;
-      if (options.isNight)   multiplier *= 1.3;  // +30% night
-      if (options.isWeekend) multiplier *= 1.1;  // +10% weekend
+      // no time/day multipliers anymore
+      const multiplier = 1;
 
       let total = (baseFee + distancePrice + surcharge) * multiplier;
       total = Math.round(total);
@@ -445,9 +431,7 @@
         rollsInNeutral: document.getElementById('rollsNeutralYes').checked,
         isAccident:     document.getElementById('accidentYes').checked,
         isUrgent:       document.getElementById('urgentYes').checked,
-        isMotorway:     document.getElementById('motorwayYes').checked,
-        isNight:        document.getElementById('timeNight').checked,
-        isWeekend:      document.getElementById('dayWeekend').checked,
+        isMotorway:     document.getElementById('motorwayYes').checked
       };
 
       const result = calculateQuote(weightKg, distanceMiles, options);
@@ -456,7 +440,7 @@
 
       const breakdownText =
         `Base: £${result.baseFee} · Distance: £${result.distancePrice.toFixed(2)} ` +
-        `(extra ${result.extraMiles} miles @ £${result.ratePerMile.toFixed(2)}/mile) · ` +
+        `(${result.extraMiles.toFixed(1)} miles @ £${result.ratePerMile.toFixed(2)}/mile) · ` +
         `Extras: £${result.surcharge}`;
 
       document.getElementById('quoteBreakdown').innerText = breakdownText;
@@ -471,8 +455,6 @@
       conditions.push(options.isAccident ? 'Accident / heavy damage: YES' : 'Accident / heavy damage: NO');
       conditions.push(options.isUrgent ? 'Urgent / blocking road: YES' : 'Urgent / blocking road: NO');
       conditions.push(options.isMotorway ? 'Motorway: YES' : 'Motorway: NO');
-      conditions.push(options.isNight ? 'Night job' : 'Daytime');
-      conditions.push(options.isWeekend ? 'Weekend' : 'Weekday');
 
       const messageLines = [
         'Hi, I have an online quote from your website:',
