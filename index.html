@@ -160,6 +160,17 @@
       opacity: 0.9;
     }
 
+    .small-btn {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #333;
+      background: #222;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
     .result-box {
       margin-top: 18px;
       padding: 14px 14px 16px;
@@ -290,10 +301,25 @@
     <!-- STEP 2 -->
     <div class="section">
       <div class="section-title">Step 2 · Journey distance</div>
-      <label for="distanceMiles">Approximate distance (miles)</label>
-      <input id="distanceMiles" type="number" min="1" step="1" placeholder="e.g. 15">
+
+      <label for="pickupPostcode">Pickup postcode</label>
+      <input id="pickupPostcode" type="text" placeholder="e.g. IG11 0XX">
+
+      <label for="dropoffPostcode" style="margin-top:8px;">Drop-off postcode</label>
+      <input id="dropoffPostcode" type="text" placeholder="e.g. RM10 9XX">
+
+      <button type="button" class="small-btn" onclick="getDistanceFromPostcodes()">
+        Detect distance automatically
+      </button>
+
+      <div class="help-text" id="distanceInfo" style="margin-top:4px;">
+        We use an approximate road distance between the two postcodes (for estimate only).
+      </div>
+
+      <label for="distanceMiles" style="margin-top:10px;">Distance (miles)</label>
+      <input id="distanceMiles" type="number" min="1" step="0.1" placeholder="e.g. 15">
       <div class="help-text">
-        From pickup location to drop-off.
+        You can adjust this if needed.
       </div>
     </div>
 
@@ -357,49 +383,103 @@
   </div>
 
   <script>
+    // --- Helper: convert degrees to radians
+    function toRad(deg) {
+      return deg * Math.PI / 180;
+    }
+
+    // --- Helper: haversine distance in km between two lat/lon points
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371; // km
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    // --- Get distance from UK postcodes using postcodes.io (approximate)
+    async function getDistanceFromPostcodes() {
+      const pickup = document.getElementById('pickupPostcode').value.trim();
+      const dropoff = document.getElementById('dropoffPostcode').value.trim();
+      const distanceField = document.getElementById('distanceMiles');
+      const infoDiv = document.getElementById('distanceInfo');
+
+      if (!pickup || !dropoff) {
+        alert('Please enter both pickup and drop-off postcodes.');
+        return;
+      }
+
+      infoDiv.textContent = 'Calculating distance...';
+
+      try {
+        const pc1 = pickup.replace(/\s+/g, '');
+        const pc2 = dropoff.replace(/\s+/g, '');
+
+        const resp1 = await fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(pc1));
+        const data1 = await resp1.json();
+        if (data1.status !== 200 || !data1.result) throw new Error('Invalid pickup postcode');
+
+        const resp2 = await fetch('https://api.postcodes.io/postcodes/' + encodeURIComponent(pc2));
+        const data2 = await resp2.json();
+        if (data2.status !== 200 || !data2.result) throw new Error('Invalid drop-off postcode');
+
+        const lat1 = data1.result.latitude;
+        const lon1 = data1.result.longitude;
+        const lat2 = data2.result.latitude;
+        const lon2 = data2.result.longitude;
+
+        const km = haversineKm(lat1, lon1, lat2, lon2);
+
+        // approximate road distance (factor ~1.3)
+        const miles = km * 0.621371 * 1.3;
+
+        if (!miles || miles <= 0) throw new Error('Bad distance');
+
+        const rounded = Math.max(1, Math.round(miles * 10) / 10); // 1 decimal, min 1 mile
+        distanceField.value = rounded.toFixed(1);
+        infoDiv.textContent = `Estimated distance: ${rounded.toFixed(1)} miles (approximate road distance).`;
+
+      } catch (err) {
+        console.error(err);
+        infoDiv.textContent =
+          'Could not calculate distance automatically. Please check the postcodes or enter miles manually.';
+      }
+    }
+
     function getCategory(weightKg) {
-      // Category 1: small cars up to 1500 kg
       if (weightKg <= 1500) return 1;
-
-      // Category 2: medium cars 1501–1800 kg
       if (weightKg <= 1800) return 2;
-
-      // Category 3: 4x4 / vans over 1800 kg
       return 3;
     }
 
     function calculateQuote(weightKg, distanceMiles, options) {
       const category = getCategory(weightKg);
 
-      // base fee by category
       let baseFee;
       const ratePerMile = 3.0;   // £3 per mile from the first mile
 
       if (category === 1) {
-        // Small cars up to 1500 kg
         baseFee = 70;
       } else if (category === 2) {
-        // Medium cars 1501–1800 kg
         baseFee = 90;
       } else {
-        // 4x4 / vans over 1800 kg
         baseFee = 100;
       }
 
-      // distance price: all miles are charged
       const distancePrice = distanceMiles * ratePerMile;
-      const extraMiles = distanceMiles; // for display only
+      const extraMiles = distanceMiles;
 
       let surcharge = 0;
+      if (!options.rollsInNeutral) surcharge += 60;
+      if (options.isAccident)      surcharge += 70;
+      if (options.isUrgent)        surcharge += 25;
+      if (options.isMotorway)      surcharge += 80;
 
-      // surcharges
-      if (!options.rollsInNeutral) surcharge += 60;   // not rolling in neutral
-      if (options.isAccident)      surcharge += 70;   // accident / heavy damage
-      if (options.isUrgent)        surcharge += 25;   // urgent / blocking road
-      if (options.isMotorway)      surcharge += 80;   // motorway job
-
-      // no time/day multipliers anymore
-      const multiplier = 1;
+      const multiplier = 1; // no time/day multipliers
 
       let total = (baseFee + distancePrice + surcharge) * multiplier;
       total = Math.round(total);
@@ -420,7 +500,7 @@
       const distanceMiles = parseFloat(distanceInput);
 
       if (!distanceMiles || distanceMiles <= 0) {
-        alert('Please enter the approximate distance in miles.');
+        alert('Please enter or calculate the distance in miles.');
         return;
       }
 
@@ -446,7 +526,6 @@
       document.getElementById('quoteBreakdown').innerText = breakdownText;
       document.getElementById('resultBox').style.display = 'block';
 
-      // Prepare WhatsApp link
       const reg = (document.getElementById('regInput').value || '').trim();
       const vehicleTypeText = weightSelect.options[weightSelect.selectedIndex].text;
 
@@ -461,7 +540,7 @@
         '',
         reg ? ('Vehicle reg: ' + reg) : 'Vehicle reg: (not entered)',
         'Vehicle type: ' + vehicleTypeText,
-        'Distance: ' + distanceMiles + ' miles',
+        'Distance: ' + distanceMiles.toFixed(1) + ' miles',
         '',
         'Conditions:',
         '- ' + conditions.join('\n- '),
@@ -473,8 +552,6 @@
 
       const message = messageLines.join('\n');
       const encoded = encodeURIComponent(message);
-
-      // phone: 079 900 900 28 -> 447990090028
       const whatsappUrl = 'https://wa.me/447990090028?text=' + encoded;
       document.getElementById('whatsLink').href = whatsappUrl;
     }
