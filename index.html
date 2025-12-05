@@ -320,6 +320,12 @@
       </div>
 
       <div class="radio-row">
+        <span>Motorway?</span>
+        <label><input type="radio" name="motorway" id="motorwayNo" checked> No</label>
+        <label><input type="radio" name="motorway" id="motorwayYes"> Yes</label>
+      </div>
+
+      <div class="radio-row">
         <span>Time</span>
         <label><input type="radio" name="timeOfDay" id="timeNormal" checked> Normal hours</label>
         <label><input type="radio" name="timeOfDay" id="timeNight"> Night (21:00–06:00)</label>
@@ -398,13 +404,16 @@
       let distancePrice = extraMiles * ratePerMile;
 
       let surcharge = 0;
-      if (!options.rollsInNeutral) surcharge += 20;
-      if (options.isAccident) surcharge += 30;
-      if (options.isUrgent) surcharge += 25;
+
+      // NEW surcharges
+      if (!options.rollsInNeutral) surcharge += 60;   // not rolling in neutral
+      if (options.isAccident)      surcharge += 70;   // accident / heavy damage
+      if (options.isUrgent)        surcharge += 25;   // urgent / blocking road
+      if (options.isMotorway)      surcharge += 80;   // motorway job
 
       let multiplier = 1;
-      if (options.isNight) multiplier *= 1.3;
-      if (options.isWeekend) multiplier *= 1.1;
+      if (options.isNight)   multiplier *= 1.3;  // +30% night
+      if (options.isWeekend) multiplier *= 1.1;  // +10% weekend
 
       let total = (baseFee + distancePrice + surcharge) * multiplier;
       total = Math.round(total);
@@ -434,10 +443,11 @@
 
       const options = {
         rollsInNeutral: document.getElementById('rollsNeutralYes').checked,
-        isAccident: document.getElementById('accidentYes').checked,
-        isUrgent: document.getElementById('urgentYes').checked,
-        isNight: document.getElementById('timeNight').checked,
-        isWeekend: document.getElementById('dayWeekend').checked,
+        isAccident:     document.getElementById('accidentYes').checked,
+        isUrgent:       document.getElementById('urgentYes').checked,
+        isMotorway:     document.getElementById('motorwayYes').checked,
+        isNight:        document.getElementById('timeNight').checked,
+        isWeekend:      document.getElementById('dayWeekend').checked,
       };
 
       const result = calculateQuote(weightKg, distanceMiles, options);
@@ -460,6 +470,7 @@
       conditions.push(options.rollsInNeutral ? 'Rolls in neutral: YES' : 'Rolls in neutral: NO');
       conditions.push(options.isAccident ? 'Accident / heavy damage: YES' : 'Accident / heavy damage: NO');
       conditions.push(options.isUrgent ? 'Urgent / blocking road: YES' : 'Urgent / blocking road: NO');
+      conditions.push(options.isMotorway ? 'Motorway: YES' : 'Motorway: NO');
       conditions.push(options.isNight ? 'Night job' : 'Daytime');
       conditions.push(options.isWeekend ? 'Weekend' : 'Weekday');
 
