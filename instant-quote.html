@@ -278,9 +278,9 @@
 
       <label for="weightSelect" style="margin-top:10px;">Vehicle type</label>
       <select id="weightSelect" style="width:100%; padding:9px 10px; border-radius:8px; border:1px solid #333; background:#101010; color:#f5f5f5; font-size:14px;">
-        <option value="1500">Small car / standard car (up to 2,000 kg)</option>
-        <option value="2300">4x4 / estate / medium van (2,001–3,000 kg)</option>
-        <option value="3200">Large van / light truck (over 3,000 kg)</option>
+        <option value="1400">Small car (up to 1500 kg)</option>
+        <option value="1700">Medium car (1501–1800 kg)</option>
+        <option value="2000">4x4 or Van (over 1800 kg)</option>
       </select>
       <div class="help-text">
         If you’re not sure, just choose the closest option – we’ll confirm on the phone.
@@ -364,19 +364,35 @@
 
   <script>
     function getCategory(weightKg) {
-      if (weightKg <= 2000) return 1;      // Car / small van
-      if (weightKg <= 3000) return 2;      // Medium van / 4x4
-      return 3;                            // Large van
+      // Category 1: small cars up to 1500 kg
+      if (weightKg <= 1500) return 1;
+
+      // Category 2: medium cars 1501–1800 kg
+      if (weightKg <= 1800) return 2;
+
+      // Category 3: 4x4 / vans over 1800 kg
+      return 3;
     }
 
     function calculateQuote(weightKg, distanceMiles, options) {
       const category = getCategory(weightKg);
 
-      let baseFee, ratePerMile;
-      if (category === 1) { baseFee = 65; ratePerMile = 2.0; }
-      else if (category === 2) { baseFee = 80; ratePerMile = 2.5; }
-      else { baseFee = 100; ratePerMile = 3.0; }
+      // base fee by category
+      let baseFee;
+      const ratePerMile = 3.0;   // £3 per mile daytime for all categories
 
+      if (category === 1) {
+        // Small cars up to 1500 kg
+        baseFee = 70;
+      } else if (category === 2) {
+        // Medium cars 1501–1800 kg
+        baseFee = 90;
+      } else {
+        // 4x4 / vans over 1800 kg
+        baseFee = 100;
+      }
+
+      // miles included in base price
       const includedMiles = 5;
       const extraMiles = Math.max(0, distanceMiles - includedMiles);
       let distancePrice = extraMiles * ratePerMile;
@@ -455,14 +471,14 @@
         'Distance: ' + distanceMiles + ' miles',
         '',
         'Conditions:',
-        '- ' + conditions.join('\\n- '),
+        '- ' + conditions.join('\n- '),
         '',
         'Estimated price: £' + result.total,
         '',
         'Can you confirm availability and final price, please?'
       ];
 
-      const message = messageLines.join('\\n');
+      const message = messageLines.join('\n');
       const encoded = encodeURIComponent(message);
 
       // phone: 079 900 900 28 -> 447990090028
