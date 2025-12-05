@@ -283,7 +283,10 @@
 
       <label for="regInput">Vehicle reg</label>
       <input id="regInput" type="text" placeholder="e.g. AB12CDE">
-      <div class="help-text">
+      <button type="button" class="small-btn" onclick="lookupByReg()">
+        Detect vehicle from reg
+      </button>
+      <div class="help-text" id="regInfo">
         This helps us match your quote with your call or WhatsApp message.
       </div>
 
@@ -383,6 +386,69 @@
   </div>
 
   <script>
+    // --- VRM LOOKUP (via your own backend/proxy) ---
+    async function lookupByReg() {
+      const regInput = document.getElementById('regInput');
+      const infoDiv = document.getElementById('regInfo');
+      const weightSelect = document.getElementById('weightSelect');
+
+      const raw = (regInput.value || '').trim();
+      if (!raw) {
+        alert('Please enter the vehicle reg.');
+        return;
+      }
+
+      const reg = raw.toUpperCase().replace(/\s+/g, '');
+      regInput.value = reg;
+
+      infoDiv.textContent = 'Checking vehicle details...';
+
+      try {
+        // 👇 AICI PUI LINK-UL CĂTRE BACKEND-UL TĂU
+        // Exemplu: const backendUrl = 'https://revrecovery.co.uk/api/vrm-lookup';
+        const backendUrl = 'https://EXEMPLU-URL-AL-TAU/vrm-lookup';
+
+        const url = backendUrl + '?vrm=' + encodeURIComponent(reg);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('VRM API error');
+
+        const data = await response.json();
+
+        // AICI presupunem că backend-ul tău întoarce:
+        // { make: 'BMW', model: '3 SERIES', year: 2015, weightKg: 1550 }
+        const make  = data.make  || '';
+        const model = data.model || '';
+        const year  = data.year  || '';
+        const weightKg = data.weightKg || data.weight || 1500;
+
+        // alegem categoria după greutate
+        let category;
+        if (weightKg <= 1500) {
+          category = 1;
+          weightSelect.value = 1400;
+        } else if (weightKg <= 1800) {
+          category = 2;
+          weightSelect.value = 1700;
+        } else {
+          category = 3;
+          weightSelect.value = 2000;
+        }
+
+        let text = 'Detected vehicle';
+        if (make || model || year) {
+          text += `: ${make} ${model} ${year}`.trim();
+        }
+        text += ` · approx weight ${Math.round(weightKg)} kg (category ${category} selected).`;
+
+        infoDiv.textContent = text;
+
+      } catch (err) {
+        console.error(err);
+        infoDiv.textContent =
+          'Could not detect vehicle automatically. Please check the reg or select the vehicle type manually.';
+      }
+    }
+
     // --- Helper: convert degrees to radians
     function toRad(deg) {
       return deg * Math.PI / 180;
